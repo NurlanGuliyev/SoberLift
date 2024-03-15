@@ -30,6 +30,7 @@ mongoose.connect(MONGO_URL, {
     //await insertRides();
     //await insertPayments();
     //await insertCards();
+    console.log("Nurlan Guliyev");
 
     mongoose.disconnect(); // Close the MongoDB connection after insertion
 }).catch((error) => {
