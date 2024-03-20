@@ -1,14 +1,12 @@
 // Import necessary modules
-const { Client } = require("../models/client");
-const nodemailer = require("nodemailer");
-const jwt = require("jsonwebtoken");
-const moment = require("moment");
+import {Client} from "../models/client.js";
+import jwt from "jsonwebtoken";
+import moment from "moment";
+
 
 // Define your private key and configure nodemailer transporter
 const privateKey = "ironmaiden";
-const transporter = nodemailer.createTransport({
-  // Configure your email transporter here
-});
+
 
 // Function to register a new client
 async function register(req, res) {
@@ -67,16 +65,20 @@ async function confirm(req, res) {
   }
 }
 
-// Function to login a user
 async function login(req, res) {
   try {
+    // Check if req.body is defined and contains the required properties
+    if (!req.body || !req.body.email || !req.body.password) {
+      return res.status(400).json({ message: "Email and password are required." });
+    }
+
     let user = await Client.findOne({ email: req.body.email, password: req.body.password });
     if (!user) {
       return res.status(404).json({ message: "Email or password wrong!" });
     }
 
     if (!user.isActive) {
-      return res.status(203).json({ email: req.body.email });
+      return res.status(203).json({ message: "User is not active", email: req.body.email });
     }
 
     const token = jwt.sign(req.body.email, privateKey);
@@ -150,8 +152,7 @@ function sendForgotPasswordEmail(to, password) {
   });
 }
 
-// Export all functions
-module.exports = {
+export {
   register,
   confirm,
   login,
