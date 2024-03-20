@@ -18,6 +18,12 @@ app.use(express.json());
 // Route for the login endpoint
 app.post('/api/login', login);
 
+
+// Define a route handler for the root URL
+app.get('/', (req, res) => {
+    res.send('Hello, world!'); // Respond with a simple message
+  });
+
 dotenv.config();
 
 const MONGO_URL = process.env.MONGO_URL;
