@@ -12,7 +12,8 @@ const driverSchema = new mongoose.Schema({
         default: false,
       },
     rating: [Number],
-    status: String
+    status: String,
+    drivingLicense: String
 }, { versionKey: false });
 
 const Driver = mongoose.model('Driver', driverSchema, 'Driver');
@@ -28,7 +29,8 @@ async function insertDrivers() {
             password: 'password123',
             locationId: '5fecb3a2c048954f789e5f34', // Example location ID (ObjectID)
             rating: [4, 5, 3],
-            status: 'active'
+            status: 'active',
+            drivingLicense: 'ABC123'
         },
         {
             name: 'Jane',
@@ -38,7 +40,8 @@ async function insertDrivers() {
             password: 'password456',
             locationId: '5fecb3a2c048954f789e5f35', // Example location ID (ObjectID)
             rating: [5, 5, 4],
-            status: 'inactive'
+            status: 'inactive',
+            drivingLicense: 'ABC123'
         },
         {
             name: 'Alice',
@@ -48,7 +51,8 @@ async function insertDrivers() {
             password: 'password789',
             locationId: '5fecb3a2c048954f789e5f36', // Example location ID (ObjectID)
             rating: [3, 4, 3],
-            status: 'active'
+            status: 'active',
+            drivingLicense: 'ABC123'
         },
         {
             name: 'Bob',
@@ -58,7 +62,8 @@ async function insertDrivers() {
             password: 'passwordabc',
             locationId: '5fecb3a2c048954f789e5f37', // Example location ID (ObjectID)
             rating: [5, 4, 5],
-            status: 'active'
+            status: 'active',
+            drivingLicense: 'ABC123'
         },
         {
             name: 'Emily',
@@ -68,7 +73,8 @@ async function insertDrivers() {
             password: 'passwordxyz',
             locationId: '5fecb3a2c048954f789e5f38', // Example location ID (ObjectID)
             rating: [4, 3, 4],
-            status: 'inactive'
+            status: 'inactive',
+            drivingLicense: 'ABC123'
         }
     ];
     
@@ -78,9 +84,6 @@ async function insertDrivers() {
     } catch (error) {
         console.error("Error inserting documents:", error);
     }
-    
-
-
 }
 
 export { Driver, insertDrivers };

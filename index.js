@@ -8,15 +8,19 @@ import { insertFeedbacks} from "./models/feedback.js";
 import { insertRides} from "./models/ride.js";
 import { insertPayments} from "./models/payment.js";
 import { insertCards} from "./models/card.js";
-import { login } from "./controllers/clientController.js";
+import { clientLogin, clientRegister } from "./controllers/clientController.js";
+import { driverLogin, driverRegister } from "./controllers/driverController.js";
 import express from "express";
 const app = express();
 
 // Middleware to parse JSON request bodies
 app.use(express.json());
 
-// Route for the login endpoint
-app.post('/api/login', login);
+// Routes
+app.post('/api/clientlogin', clientLogin);
+app.post('/api/clientregister', clientRegister);
+app.post('/api/driverlogin', driverLogin);
+app.post('/api/driverregister', driverRegister);
 
 
 // Define a route handler for the root URL

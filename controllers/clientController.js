@@ -1,162 +1,54 @@
-// Import necessary modules
-import {Client} from "../models/client.js";
-import jwt from "jsonwebtoken";
-import moment from "moment";
+import { Client } from '../models/client.js'; // Assuming your model file is named client.js
 
+// Function to handle client login
+async function clientLogin(req, res) {
+    const { email, password } = req.body;
 
-// Define your private key and configure nodemailer transporter
-const privateKey = "ironmaiden";
+    try {
+        const client = await Client.findOne({ email });
 
+        if (!client || client.password !== password) {
+            return res.status(401).json({ message: "Invalid email or password" });
+        }
 
-// Function to register a new client
-async function register(req, res) {
-  try {
-    let email = req.body?.email.toLowerCase();
-    let existingClient = await Client.findOne({ email: email });
-    if (existingClient) {
-      return res.status(500).json({ msg: "This user already exists!!!" });
+        // Set client as active
+        client.isActive = true;
+        await client.save();
+
+        return res.status(200).json({ message: "Login successful", client });
+    } catch (error) {
+        console.error("Error during login:", error);
+        return res.status(500).json({ message: "Internal server error" });
     }
-
-    const newClient = new Client({
-      email: email,
-      username: req.body.username,
-      password: req.body.password, // Hash password before saving in real-world scenario
-    });
-
-    await newClient.save();
-    res.json({ email });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
 }
 
-// Function to confirm user's email and generate JWT token
-async function confirm(req, res) {
-  try {
-    const code = req.body.code;
-    const email = req.body.email;
+// Function to handle client registration
+async function clientRegister(req, res) {
+    const { name, surname, contact_number, email, password } = req.body;
 
-    let user = await Client.findOne({ email: email });
-    if (!user) {
-      return res.status(404).json({ message: "User not found." });
-    }
+    try {
+        // Check if email already exists
+        const existingClient = await Client.findOne({ email });
+        if (existingClient) {
+            return res.status(400).json({ message: "Email already exists" });
+        }
 
-    if (user.codeCounter === 0) {
-      return res.status(500).json({ message: "BLOCK!!" });
-    }
+        // Create new client
+        const newClient = new Client({
+            name,
+            surname,
+            contact_number,
+            email,
+            password
+        });
 
-    if (user.code === code) {
-      if (moment(user.codeExpire).isAfter(moment())) {
-        const token = jwt.sign(email, privateKey);
-        user.isActive = true;
-        user.codeCounter = 3;
-        await user.save();
-        res.json({ token });
-      } else {
-        res.status(500).json({ message: "Expire Date Error!" });
-      }
-    } else {
-      user.codeCounter -= 1;
-      await user.save();
-      res.status(404).json({ message: "Confirm code error!", remainingAttempts: user.codeCounter });
+        await newClient.save();
+
+        return res.status(201).json({ message: "Client registered successfully", client: newClient });
+    } catch (error) {
+        console.error("Error during registration:", error);
+        return res.status(500).json({ message: "Internal server error" });
     }
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
 }
 
-async function login(req, res) {
-  try {
-    // Check if req.body is defined and contains the required properties
-    if (!req.body || !req.body.email || !req.body.password) {
-      return res.status(400).json({ message: "Email and password are required." });
-    }
-
-    let user = await Client.findOne({ email: req.body.email, password: req.body.password });
-    if (!user) {
-      return res.status(404).json({ message: "Email or password wrong!" });
-    }
-
-    if (!user.isActive) {
-      return res.status(203).json({ message: "User is not active", email: req.body.email });
-    }
-
-    const token = jwt.sign(req.body.email, privateKey);
-    res.status(200).json({ token });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-}
-
-// Function to verify JWT token
-async function token(req, res) {
-  try {
-    const token = req.body.token;
-    const email = jwt.verify(token, privateKey);
-    let user = await Client.findOne({ email: email });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    res.status(200).json({ user: user });
-  } catch (error) {
-    res.status(500).json({ message: "Token error!", error: error.message });
-  }
-}
-
-// Function to handle forgot password
-async function forgotPassword(req, res) {
-  try {
-    const email = req.body.email;
-    let user = await Client.findOne({ email: email });
-    if (!user) {
-      return res.status(404).json({ message: "User not found." });
-    }
-
-    const randomToken = Math.floor(Math.random() * 10000);
-    user.forgotPassword = randomToken;
-    await user.save();
-
-    sendForgotPasswordEmail(email, randomToken);
-
-    res.status(200).json({ message: "Password reset email sent." });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-}
-
-// Function to reset user's password
-async function resetPassword(req, res) {
-  try {
-    const { userId, randomToken, newPassword } = req.body;
-
-    let user = await Client.findOne({ _id: userId, forgotPassword: randomToken });
-    if (!user) {
-      return res.status(404).json({ message: "User not found or invalid token." });
-    }
-
-    user.password = newPassword; // Hash newPassword before saving
-    await user.save();
-    res.json({ message: "Password changed successfully." });
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-}
-
-// Function to send forgot password email
-function sendForgotPasswordEmail(to, password) {
-  transporter.sendMail({
-    from: "c8657545@gmail.com",
-    to: to,
-    subject: "Password Reset",
-    text: "Your new password is: " + password,
-  });
-}
-
-export {
-  register,
-  confirm,
-  login,
-  token,
-  forgotPassword,
-  resetPassword
-};
+export { clientLogin, clientRegister };
