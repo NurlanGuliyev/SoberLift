@@ -98,14 +98,14 @@ async function sendConfirmationEmail(email, code) {
         let transporter = nodemailer.createTransport({
             service: 'Gmail',
             auth: {
-                user: 'your_email@gmail.com', // Your email address
-                pass: 'your_password' // Your email password
+                user: 'nurlan.guliyev2002@gmail.com', // Your email address
+                pass: 'Furkan123!' // Your email password
             }
         });
 
         // Send mail with defined transport object
         let info = await transporter.sendMail({
-            from: '"Your Name" <your_email@gmail.com>', // Sender address
+            from: '"Nurlan Guliyev" <nurlan.guliyev2002@gmail.com>', // Sender address
             to: email, // List of receivers
             subject: 'Confirmation Code', // Subject line
             text: `Your confirmation code is: ${code}`, // Plain text body
