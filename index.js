@@ -8,8 +8,8 @@ import { insertFeedbacks } from "./models/feedback.js";
 import { insertRides } from "./models/ride.js";
 import { insertPayments } from "./models/payment.js";
 import { insertCards } from "./models/card.js";
-import { clientLogin, clientRegister, clientverifyConfirmationCode } from "./controllers/clientController.js"; // Import verifyConfirmationCode
-import { driverLogin, driverRegister, driverconfirmCode } from "./controllers/driverController.js"; // Import confirmCode
+import { clientLogin, clientRegister} from "./controllers/clientController.js"; // Import verifyConfirmationCode
+import { driverLogin, driverRegister} from "./controllers/driverController.js"; // Import confirmCode
 import express from "express";
 const app = express();
 
@@ -19,10 +19,8 @@ app.use(express.json());
 // Routes
 app.post('/api/clientlogin', clientLogin);
 app.post('/api/clientregister', clientRegister);
-app.post('/api/verifyconfirmationcode', clientverifyConfirmationCode); // Route for client confirmation code verification
 app.post('/api/driverlogin', driverLogin);
 app.post('/api/driverregister', driverRegister);
-app.post('/api/confirmcode', driverconfirmCode); // New route for driver confirmation code verification
 
 // Define a route handler for the root URL
 app.get('/', (req, res) => {
