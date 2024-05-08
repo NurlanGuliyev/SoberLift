@@ -2,10 +2,9 @@ import mongoose from "mongoose";
 
 const requestSchema = new mongoose.Schema({
     clientId: String,
-    driverId: String,
     scheduledTime: Date,
-    pickupLocation: [Number],
-    dropOffLocation: [Number],
+    pickupLocation: Object,
+    dropOffLocation: Object,
     distance: Number,
     fare: Number,
     status: String

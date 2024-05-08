@@ -71,28 +71,14 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 // Function to find active drivers near a location without using geospatial queries
 async function findActiveDriversNearLocation(req, res) {
     try {
-        const { locationId } = req.body;
+        const { latitude, longitude } = req.body; // Assuming latitude and longitude are provided in the request body
         
-        // Step 1: Check if locationId is a valid ObjectId
-        const isValidObjectId = mongoose.Types.ObjectId.isValid(locationId);
-        if (!isValidObjectId) {
-            return res.status(400).json({ message: 'Invalid locationId format' });
-        }
-
-        // Step 2: Get latitude and longitude from the location document
-        const location = await Location.findById(locationId);
-        if (!location) {
-            return res.status(404).json({ message: 'Location not found' });
-        }
-
-        const { latitude: locLat, longitude: locLon } = location;
-
-        // Step 3: Retrieve all active drivers
+        // Step 1: Retrieve all active drivers
         const activeDrivers = await Driver.find({ status: 'active' });
 
-        // Step 4: Calculate distance for each driver
+        // Step 2: Calculate distance for each driver and filter based on the 20km radius
         const radiusInKm = 20; // Adjust as needed
-        const nearbyDrivers = await Promise.all(activeDrivers.map(async (driver) => {
+        const nearbyLocations = await Promise.all(activeDrivers.map(async (driver) => {
             try {
                 const location = await Location.findById(driver.locationId);
                 if (!location) {
@@ -100,22 +86,23 @@ async function findActiveDriversNearLocation(req, res) {
                 }
         
                 const { latitude: driverLat, longitude: driverLon } = location;
-                const distance = calculateDistance(locLat, locLon, driverLat, driverLon);
+                const distance = calculateDistance(latitude, longitude, driverLat, driverLon);
         
-                return {
-                    ...driver.toObject(),
-                    distance // Add the distance to the driver object
-                };
+                if (distance <= radiusInKm) {
+                    return location.toObject(); // Add the location object to the array
+                } else {
+                    return null;
+                }
             } catch (error) {
                 console.error(`Error finding location for driver ${driver._id}:`, error);
                 return null;
             }
         }));
 
-        // Filter nearby drivers after Promise.all
-        const filteredNearbyDrivers = nearbyDrivers.filter(driver => driver !== null && driver.distance <= radiusInKm);
+        // Filter out null values and return the nearby location objects
+        const filteredNearbyLocations = nearbyLocations.filter(location => location !== null);
 
-        return res.status(200).json(filteredNearbyDrivers);
+        return res.status(200).json(filteredNearbyLocations);
     } catch (error) {
         console.error("Error finding active drivers near location:", error);
         return res.status(500).json({ message: "Internal server error" });
