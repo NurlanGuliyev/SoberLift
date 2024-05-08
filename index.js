@@ -9,7 +9,7 @@ import { insertRides } from "./models/ride.js";
 import { insertPayments } from "./models/payment.js";
 import { insertCards } from "./models/card.js";
 import { clientLogin, clientRegister} from "./controllers/clientController.js"; // Import verifyConfirmationCode
-import { driverLogin, driverRegister} from "./controllers/driverController.js"; // Import confirmCode
+import { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive } from "./controllers/driverController.js"; // Import confirmCode
 import express from "express";
 const app = express();
 
@@ -21,6 +21,9 @@ app.post('/api/clientlogin', clientLogin);
 app.post('/api/clientregister', clientRegister);
 app.post('/api/driverlogin', driverLogin);
 app.post('/api/driverregister', driverRegister);
+app.post('/api/nearbydrivers', findActiveDriversNearLocation);
+app.put('/api/makeactiveinactive/:id', makeActiveInactive);
+
 
 // Define a route handler for the root URL
 app.get('/', (req, res) => {
@@ -48,7 +51,6 @@ mongoose.connect(MONGO_URL, {
     //await insertRides();
     //await insertPayments();
     //await insertCards();
-    console.log("Nurlan Guliyev");
     // Start the server
     app.listen(PORT, () => {
         console.log(`Server is running on http://localhost:${PORT}`);
