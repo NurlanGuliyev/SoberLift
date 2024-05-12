@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const rideSchema = new mongoose.Schema({
     requestId: String,
-    PaymentId: String,
+    paymentId: String,
     driverId: String,
     isActive: Boolean,
     startTime: Date,
