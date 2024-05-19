@@ -4,7 +4,7 @@ const rideSchema = new mongoose.Schema({
     requestId: String,
     paymentId: String,
     driverId: String,
-    isActive: Boolean,
+    status: String,
     startTime: Date,
     endTime: Date
 }, { versionKey: false });
