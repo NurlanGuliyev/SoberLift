@@ -1,4 +1,5 @@
 import { Client } from '../models/client.js'; // Assuming your model file is named client.js
+import mongoose from 'mongoose';
 
 // Function to handle client login
 async function clientLogin(req, res) {
@@ -51,4 +52,33 @@ async function clientRegister(req, res) {
     }
 }
 
-export { clientLogin, clientRegister };
+async function updateClientDetails(req, res) {
+    const { clientId, name, surname, email } = req.body;
+
+    try {
+        // Check if driverId is a valid ObjectId
+        const isValidObjectId = mongoose.Types.ObjectId.isValid(clientId);
+        if (!isValidObjectId) {
+            return res.status(400).json({ message: 'Invalid clientId format' });
+        }
+
+        // Find the driver by ID and update the details
+        const updatedClient = await Client.findByIdAndUpdate(
+            clientId,
+            { name, surname, email },
+            { new: true } // Return the updated document
+        );
+
+        if (!updatedClient) {
+            return res.status(404).json({ message: 'Client not found' });
+        }
+
+        // Return the updated driver object
+        return res.status(200).json(updatedClient);
+    } catch (error) {
+        console.error("Error updating client details:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+export { clientLogin, clientRegister, updateClientDetails };

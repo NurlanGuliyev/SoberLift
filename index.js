@@ -8,7 +8,7 @@ import { insertFeedbacks } from "./models/feedback.js";
 import { insertRides } from "./models/ride.js";
 import { insertPayments } from "./models/payment.js";
 import { insertCards } from "./models/card.js";
-import { clientLogin, clientRegister} from "./controllers/clientController.js"; // Import verifyConfirmationCode
+import { clientLogin, clientRegister, updateClientDetails} from "./controllers/clientController.js"; // Import verifyConfirmationCode
 import { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive, getDriverStatus, updateDriverDetails } from "./controllers/driverController.js"; // Import confirmCode
 import { createRequestFromInput, createRideFromInput } from "./controllers/RideRequestController.js";
 import express from "express";
@@ -28,6 +28,8 @@ app.post('/api/createrequest', createRequestFromInput);
 app.post('/api/create-ride', createRideFromInput);
 app.post('/api/isActive', getDriverStatus);
 app.put('/api/updatedriverdetails', updateDriverDetails);
+app.put('/api/updateclientdetails', updateClientDetails);
+
 
 // Define a route handler for the root URL
 app.get('/', (req, res) => {
