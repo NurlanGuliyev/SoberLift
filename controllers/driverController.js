@@ -153,8 +153,37 @@ async function getDriverStatus(req, res) {
     }
 }
 
+async function updateDriverDetails(req, res) {
+    const { driverId, name, surname, email } = req.body;
+
+    try {
+        // Check if driverId is a valid ObjectId
+        const isValidObjectId = mongoose.Types.ObjectId.isValid(driverId);
+        if (!isValidObjectId) {
+            return res.status(400).json({ message: 'Invalid driverId format' });
+        }
+
+        // Find the driver by ID and update the details
+        const updatedDriver = await Driver.findByIdAndUpdate(
+            driverId,
+            { name, surname, email },
+            { new: true } // Return the updated document
+        );
+
+        if (!updatedDriver) {
+            return res.status(404).json({ message: 'Driver not found' });
+        }
+
+        // Return the updated driver object
+        return res.status(200).json(updatedDriver);
+    } catch (error) {
+        console.error("Error updating driver details:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
 
 
 
 
-export { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive, getDriverStatus };
+
+export { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive, getDriverStatus, updateDriverDetails };
