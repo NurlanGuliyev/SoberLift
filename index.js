@@ -9,7 +9,7 @@ import { insertRides } from "./models/ride.js";
 import { insertPayments } from "./models/payment.js";
 import { insertCards } from "./models/card.js";
 import { clientLogin, clientRegister} from "./controllers/clientController.js"; // Import verifyConfirmationCode
-import { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive } from "./controllers/driverController.js"; // Import confirmCode
+import { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive, getDriverStatus } from "./controllers/driverController.js"; // Import confirmCode
 import { createRequestFromInput, createRideFromInput } from "./controllers/RideRequestController.js";
 import express from "express";
 const app = express();
@@ -26,6 +26,7 @@ app.post('/api/nearbydrivers', findActiveDriversNearLocation);
 app.put('/api/makeactiveinactive/:id', makeActiveInactive);
 app.post('/api/createrequest', createRequestFromInput);
 app.post('/api/create-ride', createRideFromInput);
+app.post('/api/isActive', getDriverStatus);
 
 // Define a route handler for the root URL
 app.get('/', (req, res) => {

@@ -129,11 +129,32 @@ async function makeActiveInactive(req, res) {
     }
 }
 
+async function getDriverStatus(req, res) {
+    const { driverId } = req.body;
+
+    try {
+        // Check if driverId is a valid ObjectId
+        const isValidObjectId = mongoose.Types.ObjectId.isValid(driverId);
+        if (!isValidObjectId) {
+            return res.status(400).json({ message: 'Invalid driverId format' });
+        }
+
+        // Find the driver by ID
+        const driver = await Driver.findById(driverId);
+        if (!driver) {
+            return res.status(404).json({ message: 'Driver not found' });
+        }
+
+        // Return the driver's status
+        return res.status(200).json({ status: driver.status });
+    } catch (error) {
+        console.error("Error retrieving driver status:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
 
 
 
 
 
-
-
-export { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive };
+export { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive, getDriverStatus };
