@@ -10,9 +10,9 @@ import { insertPayments } from "./models/payment.js";
 import { insertCards } from "./models/card.js";
 import { insertUsers } from "./models/user.js";
 import { insertMessages } from "./models/message.js";
-import { clientLogin, clientRegister, updateClientDetails} from "./controllers/clientController.js";
+import { clientLogin, clientRegister, updateClientDetails} from "./controllers/clientController.js"; 
 import { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive, getDriverStatus, updateDriverDetails, updateDriverLocation } from "./controllers/driverController.js";
-import { createRequestFromInput, createRideFromInput, findNearbyRequestsForDriver } from "./controllers/RideRequestController.js";
+import { createRequestFromInput, createRideFromInput,findNearbyRequestsForDriver } from "./controllers/RideRequestController.js";
 import { sendMessage, getMessages } from "./controllers/messageController.js";
 import { Message } from "./models/message.js";
 import express from "express";
@@ -48,7 +48,7 @@ app.get('/api/getMessages/:userId1/:userId2', getMessages);
 
 // Define a route handler for the root URL
 app.get('/', (req, res) => {
-    res.send('Hello, world!');
+    res.send('Hello, world!'); // Respond with a simple message
 });
 
 dotenv.config();
@@ -68,24 +68,13 @@ mongoose.connect(MONGO_URL, {
 }).then(async () => {
     console.log("Connected to MongoDB");
 
-    // Uncomment the following lines to insert initial data
-    // await insertClients();
-    // await insertRequests();
-    // await insertLocations();
-    // await insertDrivers();
-    // await insertFeedbacks();
-    // await insertRides();
-    // await insertPayments();
-    // await insertCards();
-    // await insertMessages();
-    // await insertUsers();
-
+    // Start the server
     app.listen(PORT, () => {
         console.log(`Server is running on http://localhost:${PORT}`);
     });
 }).catch((error) => {
     console.error("Error connecting to MongoDB:", error);
-    process.exit(1);
+    process.exit(1); // Exit with failure
 });
 
 // Socket.IO logic
@@ -95,18 +84,28 @@ io.on('connection', (socket) => {
     socket.on('sendMessage', async (data) => {
         const { senderId, receiverId, content } = data;
         try {
+            // Check if senderId and receiverId are valid ObjectIds
             if (!mongoose.Types.ObjectId.isValid(senderId) || !mongoose.Types.ObjectId.isValid(receiverId)) {
                 console.error("Invalid senderId or receiverId");
                 return;
             }
 
-            const newMessage = new Message({ senderId, receiverId, content });
-            await newMessage.save();
+            // Create a new message
+            const newMessage = new Message({
+                senderId,
+                receiverId,
+                content
+            });
 
+            // Save the message to the database
+            await newMessage.save();
             console.log(`Message from ${senderId} to ${receiverId}: ${content}`);
 
-            io.to(receiverId).emit('newMessage', newMessage);
-            io.to(senderId).emit('messageSent', newMessage); // Emit to the sender that the message was sent
+            // Broadcast the new message to all connected clients
+            io.emit('newMessage', newMessage);
+
+            // Emit a confirmation back to the sender
+            socket.emit('messageSent', newMessage);
         } catch (error) {
             console.error("Error sending message:", error);
         }
@@ -116,4 +115,3 @@ io.on('connection', (socket) => {
         console.log('A user disconnected', socket.id);
     });
 });
-
