@@ -24,7 +24,6 @@ async function driverLogin(req, res) {
     }
 }
 
-// Function to handle driver registration
 async function driverRegister(req, res) {
     const { name, surname, contact_number, email, password, drivingLicense } = req.body;
 
@@ -35,14 +34,27 @@ async function driverRegister(req, res) {
             return res.status(400).json({ message: "Email already exists" });
         }
 
-        // Create new driver
+        // Create a new location object with latitude and longitude set to null
+        const newLocation = new Location({
+            latitude: null,
+            longitude: null,
+            updatedAt: new Date() // Setting the updatedAt field to current date
+        });
+
+        // Save the new location object to the database
+        const savedLocation = await newLocation.save();
+
+        // Create new driver with the saved location's ID
         const newDriver = new Driver({
             name,
             surname,
             contact_number,
             email,
             password,
-            drivingLicense
+            drivingLicense,
+            locationId: savedLocation._id, // Assign the location ID to the driver
+            isActive: false, // Set default status to inactive
+            status: "inactive" // Set initial status
         });
 
         await newDriver.save();
@@ -53,7 +65,6 @@ async function driverRegister(req, res) {
         return res.status(500).json({ message: "Internal server error" });
     }
 }
-
 // Function to calculate distance between two points (in kilometers)
 function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371; // Radius of the earth in km
@@ -182,8 +193,42 @@ async function updateDriverDetails(req, res) {
     }
 }
 
+// Function to update driver location
+async function updateDriverLocation(req, res) {
+    const { driverId } = req.params;
+    const { latitude, longitude } = req.body.location;
+
+    try {
+        // Find the driver by driverId
+        const driver = await Driver.findById(driverId);
+        if (!driver) {
+            return res.status(404).json({ message: "Driver not found" });
+        }
+
+        // Get the locationId from the driver document
+        const locationId = driver.locationId;
+        if (!locationId) {
+            return res.status(404).json({ message: "Location not found for this driver" });
+        }
+
+        // Find the location by locationId and update latitude and longitude
+        const location = await Location.findByIdAndUpdate(
+            locationId,
+            { latitude, longitude, updatedAt: new Date() },
+            { new: true } // Return the updated document
+        );
+
+        if (!location) {
+            return res.status(404).json({ message: "Location not found" });
+        }
+
+        return res.status(200).json({ message: "Location updated successfully", location });
+    } catch (error) {
+        console.error("Error updating location:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
 
 
 
-
-export { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive, getDriverStatus, updateDriverDetails };
+export { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive, getDriverStatus, updateDriverDetails, updateDriverLocation };

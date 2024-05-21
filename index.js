@@ -9,7 +9,7 @@ import { insertRides } from "./models/ride.js";
 import { insertPayments } from "./models/payment.js";
 import { insertCards } from "./models/card.js";
 import { clientLogin, clientRegister, updateClientDetails} from "./controllers/clientController.js"; // Import verifyConfirmationCode
-import { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive, getDriverStatus, updateDriverDetails } from "./controllers/driverController.js"; // Import confirmCode
+import { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive, getDriverStatus, updateDriverDetails, updateDriverLocation } from "./controllers/driverController.js"; // Import confirmCode
 import { createRequestFromInput, createRideFromInput,findNearbyRequestsForDriver } from "./controllers/RideRequestController.js";
 import express from "express";
 const app = express();
@@ -30,6 +30,7 @@ app.post('/api/isActive', getDriverStatus);
 app.put('/api/updatedriverdetails', updateDriverDetails);
 app.put('/api/updateclientdetails', updateClientDetails);
 app.post('/api/nearbyrequests', findNearbyRequestsForDriver);
+app.put('/api/updateLocation/:driverId', updateDriverLocation);
 
 
 
