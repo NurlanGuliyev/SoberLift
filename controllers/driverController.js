@@ -274,5 +274,37 @@ async function getDriverRides(req,res){
     }
 };
 
+async function getDriverLocation(req, res) {
+    try {
+        const { driverId } = req.body;
 
-export { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive, getDriverStatus, updateDriverDetails, updateDriverLocation, getDriverRides };
+        // Find the driver by the given driverId
+        const driver = await Driver.findById(driverId);
+
+        if (!driver) {
+            return res.status(404).json({ message: "Driver not found" });
+        }
+
+        const locationId = driver.locationId;
+
+        if (!locationId) {
+            return res.status(404).json({ message: "Location ID not found for the driver" });
+        }
+
+        // Find the location by locationId
+        const location = await Location.findById(locationId);
+
+        if (!location) {
+            return res.status(404).json({ message: "Location not found" });
+        }
+
+        // Return the location document
+        res.status(200).json(location);
+    } catch (error) {
+        console.error("Error retrieving driver's location:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+
+export { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive, getDriverStatus, updateDriverDetails, updateDriverLocation, getDriverRides, getDriverLocation };

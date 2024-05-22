@@ -151,8 +151,43 @@ async function isRequestAccepted(req, res) {
     }
 }
 
+async function getRideByRequestId(req, res) {
+    try {
+        const { requestId } = req.body;
+
+        // Find the ride document that contains the given requestId
+        const ride = await Ride.findOne({ requestId: requestId.toString() });
+
+        if (!ride) {
+            return res.status(404).json({ message: "Ride not found" });
+        }
+
+        // Find the request document that has the given requestId
+        const request = await Request.findById(requestId);
+
+        if (!request) {
+            return res.status(404).json({ message: "Request not found" });
+        }
+
+        // Replace the requestId field in the ride document with the actual request document
+        const rideWithRequest = {
+            ...ride.toObject(),
+            request: request
+        };
+
+        // Remove the requestId field from the response
+        delete rideWithRequest.requestId;
+
+        // Return the modified ride document
+        res.status(200).json(rideWithRequest);
+    } catch (error) {
+        console.error("Error retrieving ride by request ID:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
 
 
 
 
-export { createRequestFromInput, createRideFromInput, isRequestAccepted };
+
+export { createRequestFromInput, createRideFromInput, isRequestAccepted, getRideByRequestId };

@@ -11,8 +11,8 @@ import { insertCards } from "./models/card.js";
 import { insertUsers } from "./models/user.js";
 import { insertMessages } from "./models/message.js";
 import { clientLogin, clientRegister, updateClientDetails, getClientRides} from "./controllers/clientController.js";
-import { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive, getDriverStatus, updateDriverDetails, updateDriverLocation, getDriverRides } from "./controllers/driverController.js";
-import { createRequestFromInput, createRideFromInput, findNearbyRequestsForDriver, isRequestAccepted} from "./controllers/RideRequestController.js";
+import { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive, getDriverStatus, updateDriverDetails, updateDriverLocation, getDriverRides, getDriverLocation } from "./controllers/driverController.js";
+import { createRequestFromInput, createRideFromInput, findNearbyRequestsForDriver, isRequestAccepted, getRideByRequestId} from "./controllers/RideRequestController.js";
 import { sendMessage, getMessages } from "./controllers/messageController.js";
 import { Message } from "./models/message.js";
 import express from "express";
@@ -48,6 +48,8 @@ app.get('/api/getMessages/:userId1/:userId2', getMessages);
 app.post('/api/getClientRides', getClientRides);
 app.post('/api/getDriverRides', getDriverRides)
 app.post('/api/isRequestAccepted', isRequestAccepted);
+app.post('/api/getRide', getRideByRequestId);
+app.post('/api/getDriverLocation', getDriverLocation);
 // Define a route handler for the root URL
 app.get('/', (req, res) => {
     res.send('Hello, world!');
