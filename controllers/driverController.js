@@ -1,5 +1,7 @@
 import { Driver } from '../models/driver.js'; // Assuming your model file is named driver.js
 import { Location } from '../models/location.js'; // Import the Location model
+import { Ride } from '../models/ride.js';
+import { Request } from '../models/request.js';
 import mongoose from 'mongoose';
 
 // Function to handle driver login
@@ -229,6 +231,48 @@ async function updateDriverLocation(req, res) {
     }
 }
 
+async function getDriverRides(req,res){
+    const { driverId } = req.body;
+
+    try {
+        // Check if the driverId is a valid ObjectId
+        if (!mongoose.Types.ObjectId.isValid(driverId)) {
+            return res.status(400).json({ error: 'Invalid driverId' });
+        }
+
+        // Find rides with the given driverId
+        const rides = await Ride.find({ driverId });
+
+        // If no rides found, return an empty array
+        if (!rides.length) {
+            return res.status(200).json([]);
+        }
+
+        // Extract requestIds from the rides
+        const requestIds = rides.map(ride => ride.requestId);
+
+        // Find requests with the given requestIds
+        const requests = await Request.find({ _id: { $in: requestIds } });
+
+        // Create a map of requestId to request document
+        const requestMap = {};
+        requests.forEach(request => {
+            requestMap[request._id.toString()] = request;
+        });
+
+        // Replace the requestId field in the ride with the actual request document
+        const ridesWithRequests = rides.map(ride => ({
+            ...ride.toObject(),
+            request: requestMap[ride.requestId] ? requestMap[ride.requestId].toObject() : null
+        }));
+
+        // Return the modified rides
+        res.status(200).json(ridesWithRequests);
+    } catch (error) {
+        console.error("Error retrieving driver rides:", error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
 
 
-export { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive, getDriverStatus, updateDriverDetails, updateDriverLocation };
+export { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive, getDriverStatus, updateDriverDetails, updateDriverLocation, getDriverRides };

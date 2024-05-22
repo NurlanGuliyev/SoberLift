@@ -1,5 +1,7 @@
 import { Client } from '../models/client.js'; // Assuming your model file is named client.js
 import mongoose from 'mongoose';
+import { Request } from '../models/request.js';
+import { Ride } from '../models/ride.js';
 
 // Function to handle client login
 async function clientLogin(req, res) {
@@ -81,4 +83,43 @@ async function updateClientDetails(req, res) {
     }
 }
 
-export { clientLogin, clientRegister, updateClientDetails };
+async function getClientRides(req, res){
+    const { clientId } = req.body;
+
+    try {
+        // Check if the clientId is a valid ObjectId
+        if (!mongoose.Types.ObjectId.isValid(clientId)) {
+            return res.status(400).json({ error: 'Invalid clientId' });
+        }
+
+        // Find requests with the given clientId
+        const requests = await Request.find({ clientId });
+
+        // If no requests found, return an empty array
+        if (!requests.length) {
+            return res.status(200).json([]);
+        }
+
+        // Extract requestIds
+        const requestIds = requests.map(request => request._id.toString());
+
+        // Find rides with the given requestIds
+        const rides = await Ride.find({ requestId: { $in: requestIds } });
+
+        // Replace the requestId field in the ride with the actual request document
+        const ridesWithRequests = rides.map(ride => {
+            const request = requests.find(req => req._id.toString() === ride.requestId);
+            return {
+                ...ride.toObject(),
+                request: request ? request.toObject() : null
+            };
+        });
+
+        // Return the modified rides
+        res.status(200).json(ridesWithRequests);
+    } catch (error) {
+        console.error("Error retrieving client rides:", error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+export { clientLogin, clientRegister, updateClientDetails, getClientRides };

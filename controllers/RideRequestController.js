@@ -38,6 +38,17 @@ async function createRideFromInput(req, res) {
         // Get the requestId and fare from the request object
         const { _id: requestId, fare } = request;
 
+        // Find the request document and update its status to "accepted"
+        const updatedRequest = await Request.findByIdAndUpdate(
+            requestId,
+            { status: "accepted" },
+            { new: true }
+        );
+
+        if (!updatedRequest) {
+            return res.status(404).json({ message: "Request not found" });
+        }
+
         // Create a new ride object
         const newRide = new Ride({
             requestId: requestId.toString(),
@@ -66,7 +77,6 @@ async function createRideFromInput(req, res) {
         res.status(500).json({ message: "Internal server error" });
     }
 }
-
 // Function to calculate distance between two points (in kilometers)
 function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371; // Radius of the earth in km
@@ -112,8 +122,37 @@ export async function findNearbyRequestsForDriver(req, res) {
     }
 }
 
+async function isRequestAccepted(req, res) {
+    try {
+        const { requestId } = req.body;
+
+        // Find the request document by its ID
+        const request = await Request.findById(requestId);
+
+        if (!request) {
+            return res.status(404).json({ message: "Request not found" });
+        }
+
+        // Check the status of the request
+        const isAccepted = request.status === "accepted";
+
+        if (isAccepted){
+            return res.status(200).json(true);
+        }
+        else{
+            return res.status(200).json(false);
+        }
+
+        // Return the boolean result
+        //res.status(200).json({ isAccepted });
+    } catch (error) {
+        console.error("Error checking request status:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
 
 
 
 
-export { createRequestFromInput, createRideFromInput };
+
+export { createRequestFromInput, createRideFromInput, isRequestAccepted };
