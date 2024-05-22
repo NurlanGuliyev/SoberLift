@@ -95,25 +95,39 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 // Function to find requests within 10 km proximity of a driver
 export async function findNearbyRequestsForDriver(req, res) {
     try {
-        const driver = req.body;
+        const { driver } = req.body; // Adjusted to correctly access the nested driver object
+        console.log("Driver received:", driver); // Debug log
+
+        // Check if locationId is present
+        if (!driver.locationId) {
+            return res.status(400).json({ message: "Driver locationId is missing" });
+        }
 
         // Retrieve the driver's location using locationId
         const location = await Location.findById(driver.locationId);
         if (!location) {
+            console.error('Location not found for locationId:', driver.locationId); // Debug log
             throw new Error('Location not found');
         }
 
         const { latitude: driverLat, longitude: driverLon } = location;
+        console.log(`Driver's location: Lat=${driverLat}, Lon=${driverLon}`); // Debug log
 
         // Retrieve all request documents
         const requests = await Request.find();
+        console.log('Requests retrieved:', requests.length); // Debug log
 
         // Filter requests based on proximity to the driver's location
         const nearbyRequests = requests.filter(request => {
+            if (!request.pickupLocation || !request.pickupLocation.latitude || !request.pickupLocation.longitude) {
+                return false; // Skip if pickupLocation or its properties are null/undefined
+            }
             const { latitude: pickupLat, longitude: pickupLon } = request.pickupLocation;
             const distance = calculateDistance(driverLat, driverLon, pickupLat, pickupLon);
-            return distance <= 100; // Check if within 10 km
+            return distance <= 10; // Check if within 10 km
         });
+
+        console.log('Nearby requests found:', nearbyRequests.length); // Debug log
 
         // Return the nearby requests
         return res.status(200).json(nearbyRequests);
@@ -122,7 +136,6 @@ export async function findNearbyRequestsForDriver(req, res) {
         return res.status(500).json({ message: "Internal server error" });
     }
 }
-
 async function isRequestAccepted(req, res) {
     try {
         const { requestId } = req.body;
@@ -259,4 +272,4 @@ async function cancelRequest(req, res) {
 
 
 
-export { createRequestFromInput, createRideFromInput, isRequestAccepted, getRideByRequestId, finishRide, cancelRide, cancelRequest };
+export { createRequestFromInput, createRideFromInput, isRequestAccepted, getRideByRequestId, finishRide, cancelRide, cancelRequest};
