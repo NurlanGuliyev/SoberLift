@@ -2,6 +2,7 @@ import { Request } from "../models/request.js";
 import { Ride } from "../models/ride.js";
 import { generatePayment } from "../models/payment.js"; // Assuming payment generating function is in payment.js
 import {Location} from "../models/location.js"
+import { Driver } from "../models/driver.js";
 
 async function createRequestFromInput(req, res) {
     try {
@@ -164,19 +165,26 @@ async function getRideByRequestId(req, res) {
 
         // Find the request document that has the given requestId
         const request = await Request.findById(requestId);
+        const driver = await Driver.findById(ride.driverId);
 
         if (!request) {
+            return res.status(404).json({ message: "Request not found" });
+        }
+
+        if (!driver) {
             return res.status(404).json({ message: "Request not found" });
         }
 
         // Replace the requestId field in the ride document with the actual request document
         const rideWithRequest = {
             ...ride.toObject(),
-            request: request
+            request: request,
+            driver: driver
         };
 
         // Remove the requestId field from the response
         delete rideWithRequest.requestId;
+        delete rideWithRequest.driverId;
 
         // Return the modified ride document
         res.status(200).json(rideWithRequest);
@@ -185,6 +193,8 @@ async function getRideByRequestId(req, res) {
         res.status(500).json({ message: "Internal server error" });
     }
 }
+
+
 
 
 
