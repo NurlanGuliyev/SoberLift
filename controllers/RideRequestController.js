@@ -195,9 +195,68 @@ async function getRideByRequestId(req, res) {
 }
 
 
+async function finishRide(req, res) {
+    const { rideId } = req.params;
+
+    try {
+        const ride = await Ride.findById(rideId);
+        if (!ride) {
+            return res.status(404).json({ message: 'Ride not found' });
+        }
+
+        // Toggle the status
+        ride.status = "finished";
+        await ride.save();
+
+        return res.status(200).json({ message: 'Ride status updated', status: ride.status });
+    } catch (error) {
+        console.error('Error updating ride status:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+async function cancelRide(req, res) {
+    const { rideId } = req.params;
+
+    try {
+        const ride = await Ride.findById(rideId);
+        if (!ride) {
+            return res.status(404).json({ message: 'Ride not found' });
+        }
+
+        // Toggle the status
+        ride.status = "canceled";
+        await ride.save();
+
+        return res.status(200).json({ message: 'Ride status updated', status: ride.status });
+    } catch (error) {
+        console.error('Error updating ride status:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+
+async function cancelRequest(req, res) {
+    const { requestId } = req.params;
+
+    try {
+        const request = await Request.findById(requestId);
+        if (!request) {
+            return res.status(404).json({ message: 'Request not found' });
+        }
+
+        // Toggle the status
+        request.status = "canceled";
+        await request.save();
+
+        return res.status(200).json({ message: 'Request status updated', status: request.status });
+    } catch (error) {
+        console.error('Error updating ride status:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
 
 
 
 
-
-export { createRequestFromInput, createRideFromInput, isRequestAccepted, getRideByRequestId };
+export { createRequestFromInput, createRideFromInput, isRequestAccepted, getRideByRequestId, finishRide, cancelRide, cancelRequest };

@@ -12,7 +12,7 @@ import { insertUsers } from "./models/user.js";
 import { insertMessages } from "./models/message.js";
 import { clientLogin, clientRegister, updateClientDetails, getClientRides} from "./controllers/clientController.js";
 import { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive, getDriverStatus, updateDriverDetails, updateDriverLocation, getDriverRides, getDriverLocation } from "./controllers/driverController.js";
-import { createRequestFromInput, createRideFromInput, findNearbyRequestsForDriver, isRequestAccepted, getRideByRequestId} from "./controllers/RideRequestController.js";
+import { createRequestFromInput, createRideFromInput, findNearbyRequestsForDriver, isRequestAccepted, getRideByRequestId, finishRide, cancelRide, cancelRequest} from "./controllers/RideRequestController.js";
 import { sendMessage, getMessages } from "./controllers/messageController.js";
 import { Message } from "./models/message.js";
 import express from "express";
@@ -50,6 +50,9 @@ app.post('/api/getDriverRides', getDriverRides)
 app.post('/api/isRequestAccepted', isRequestAccepted);
 app.post('/api/getRide', getRideByRequestId);
 app.post('/api/getDriverLocation', getDriverLocation);
+app.put('/api/finishRide/:rideId', finishRide);
+app.put('/api/cancelRide/:rideId', cancelRide);
+app.put('/api/cancelRequest/:requestId', cancelRequest);
 // Define a route handler for the root URL
 app.get('/', (req, res) => {
     res.send('Hello, world!');
