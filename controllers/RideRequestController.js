@@ -3,6 +3,7 @@ import { Ride } from "../models/ride.js";
 import { generatePayment } from "../models/payment.js"; // Assuming payment generating function is in payment.js
 import {Location} from "../models/location.js"
 import { Driver } from "../models/driver.js";
+import { Client } from "../models/client.js";
 
 async function createRequestFromInput(req, res) {
     try {
@@ -96,7 +97,6 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 export async function findNearbyRequestsForDriver(req, res) {
     try {
         const { driver } = req.body; // Adjusted to correctly access the nested driver object
-        console.log("Driver received:", driver); // Debug log
 
         // Check if locationId is present
         if (!driver.locationId) {
@@ -106,16 +106,13 @@ export async function findNearbyRequestsForDriver(req, res) {
         // Retrieve the driver's location using locationId
         const location = await Location.findById(driver.locationId);
         if (!location) {
-            console.error('Location not found for locationId:', driver.locationId); // Debug log
             throw new Error('Location not found');
         }
 
         const { latitude: driverLat, longitude: driverLon } = location;
-        console.log(`Driver's location: Lat=${driverLat}, Lon=${driverLon}`); // Debug log
 
         // Retrieve all request documents
         const requests = await Request.find();
-        console.log('Requests retrieved:', requests.length); // Debug log
 
         // Filter requests based on proximity to the driver's location
         const nearbyRequests = requests.filter(request => {
@@ -127,15 +124,26 @@ export async function findNearbyRequestsForDriver(req, res) {
             return distance <= 10; // Check if within 10 km
         });
 
-        console.log('Nearby requests found:', nearbyRequests.length); // Debug log
+        // Fetch the full client documents for each request
+        const populatedRequests = await Promise.all(
+            nearbyRequests.map(async (request) => {
+                const client = await Client.findById(request.clientId);
+                const requestObj = request.toObject();
+                requestObj.client = client; // Assign the client document to a new field 'client'
+                delete requestObj.clientId; // Optionally, you can remove the clientId field
+                return requestObj;
+            })
+        );
 
-        // Return the nearby requests
-        return res.status(200).json(nearbyRequests);
+        // Return the nearby requests with full client details
+        return res.status(200).json(populatedRequests);
     } catch (error) {
         console.error("Error finding nearby requests for driver:", error);
         return res.status(500).json({ message: "Internal server error" });
     }
 }
+
+
 async function isRequestAccepted(req, res) {
     try {
         const { requestId } = req.body;
