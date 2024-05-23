@@ -143,7 +143,6 @@ export async function findNearbyRequestsForDriver(req, res) {
     }
 }
 
-
 async function isRequestAccepted(req, res) {
     try {
         const { requestId } = req.body;
@@ -177,43 +176,52 @@ async function getRideByRequestId(req, res) {
     try {
         const { requestId } = req.body;
 
+        console.log(`Received requestId: ${requestId}`);
+
         // Find the ride document that contains the given requestId
         const ride = await Ride.findOne({ requestId: requestId.toString() });
 
         if (!ride) {
+            console.log(`Ride not found for requestId: ${requestId}`);
             return res.status(404).json({ message: "Ride not found" });
         }
 
         // Find the request document that has the given requestId
         const request = await Request.findById(requestId);
-        const driver = await Driver.findById(ride.driverId);
-
         if (!request) {
+            console.log(`Request not found for requestId: ${requestId}`);
             return res.status(404).json({ message: "Request not found" });
         }
 
+        // Find the driver document that has the driverId in the ride document
+        const driver = await Driver.findById(ride.driverId);
         if (!driver) {
-            return res.status(404).json({ message: "Request not found" });
+            console.log(`Driver not found for driverId: ${ride.driverId}`);
+            return res.status(404).json({ message: "Driver not found" });
         }
 
-        // Replace the requestId field in the ride document with the actual request document
-        const rideWithRequest = {
+        // Replace the requestId and driverId fields in the ride document with the actual request and driver documents
+        const rideWithDetails = {
             ...ride.toObject(),
             request: request,
             driver: driver
         };
 
-        // Remove the requestId field from the response
-        delete rideWithRequest.requestId;
-        delete rideWithRequest.driverId;
+        // Remove the requestId and driverId fields from the response
+        delete rideWithDetails.requestId;
+        delete rideWithDetails.driverId;
+
+        console.log('Ride with details:', rideWithDetails);
 
         // Return the modified ride document
-        res.status(200).json(rideWithRequest);
+        return res.status(200).json(rideWithDetails);
     } catch (error) {
         console.error("Error retrieving ride by request ID:", error);
-        res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "Internal server error" });
     }
 }
+
+export default getRideByRequestId;
 
 
 async function finishRide(req, res) {

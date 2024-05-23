@@ -122,4 +122,35 @@ async function getClientRides(req, res){
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+
+// Function to rate a client
+export async function rateClient(req, res) {
+    try {
+        const { clientId } = req.params;
+        const { rating } = req.body;
+
+        // Find the client by clientId
+        const client = await Client.findById(clientId);
+        if (!client) {
+            return res.status(404).json({ message: "Client not found" });
+        }
+
+        // Add the new rating to the ratings array
+        client.ratings.push(rating);
+
+        // Calculate the new average rating
+        const totalRatings = client.ratings.length;
+        const sumOfRatings = client.ratings.reduce((acc, curr) => acc + curr, 0);
+        client.rating = sumOfRatings / totalRatings;
+
+        // Save the updated client document
+        await client.save();
+
+        // Return the updated rating
+        return res.status(200).json({ rating: client.rating });
+    } catch (error) {
+        console.error("Error rating client:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
 export { clientLogin, clientRegister, updateClientDetails, getClientRides };

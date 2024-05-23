@@ -10,8 +10,8 @@ import { insertPayments } from "./models/payment.js";
 import { insertCards } from "./models/card.js";
 import { insertUsers } from "./models/user.js";
 import { insertMessages } from "./models/message.js";
-import { clientLogin, clientRegister, updateClientDetails, getClientRides} from "./controllers/clientController.js";
-import { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive, getDriverStatus, updateDriverDetails, updateDriverLocation, getDriverRides, getDriverLocation } from "./controllers/driverController.js";
+import { clientLogin, clientRegister, updateClientDetails, getClientRides, rateClient} from "./controllers/clientController.js";
+import { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive, getDriverStatus, updateDriverDetails, updateDriverLocation, getDriverRides, getDriverLocation, rateDriver } from "./controllers/driverController.js";
 import { createRequestFromInput, createRideFromInput, findNearbyRequestsForDriver, isRequestAccepted, getRideByRequestId, finishRide, cancelRide, cancelRequest} from "./controllers/RideRequestController.js";
 import { sendMessage, getMessages } from "./controllers/messageController.js";
 import { Message } from "./models/message.js";
@@ -53,6 +53,8 @@ app.post('/api/getDriverLocation', getDriverLocation);
 app.put('/api/finishRide/:rideId', finishRide);
 app.put('/api/cancelRide/:rideId', cancelRide);
 app.put('/api/cancelRequest/:requestId', cancelRequest);
+app.post('/api/rateClient/:clientId', rateClient);
+app.post('/api/rateDriver/:driverId', rateDriver);
 // Define a route handler for the root URL
 app.get('/', (req, res) => {
     res.send('Hello, world!');

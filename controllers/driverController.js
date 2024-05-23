@@ -306,5 +306,35 @@ async function getDriverLocation(req, res) {
     }
 }
 
+// Function to rate a driver
+export async function rateDriver(req, res) {
+    try {
+        const { driverId } = req.params;
+        const { rating } = req.body;
+
+        // Find the driver by driverId
+        const driver = await Driver.findById(driverId);
+        if (!driver) {
+            return res.status(404).json({ message: "Driver not found" });
+        }
+
+        // Add the new rating to the ratings array
+        driver.ratings.push(rating);
+
+        // Calculate the new average rating
+        const totalRatings = driver.ratings.length;
+        const sumOfRatings = driver.ratings.reduce((acc, curr) => acc + curr, 0);
+        driver.rating = sumOfRatings / totalRatings;
+
+        // Save the updated client document
+        await driver.save();
+
+        // Return the updated rating
+        return res.status(200).json({ rating: driver.rating });
+    } catch (error) {
+        console.error("Error rating client:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
 
 export { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive, getDriverStatus, updateDriverDetails, updateDriverLocation, getDriverRides, getDriverLocation };

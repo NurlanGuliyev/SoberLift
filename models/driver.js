@@ -11,7 +11,8 @@ const driverSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
       },
-    rating: [Number],
+    ratings: [Number],
+    rating: Number,
     status: String,
     drivingLicense: String
 }, { versionKey: false });
@@ -28,7 +29,8 @@ async function insertDrivers() {
             email: 'john@example.com',
             password: 'password123',
             locationId: '5fecb3a2c048954f789e5f34', // Example location ID (ObjectID)
-            rating: [4, 5, 3],
+            ratings: [4, 5, 3],
+            rating: 5, 
             status: 'active',
             drivingLicense: 'ABC123'
         },
@@ -39,7 +41,7 @@ async function insertDrivers() {
             email: 'jane@example.com',
             password: 'password456',
             locationId: '5fecb3a2c048954f789e5f35', // Example location ID (ObjectID)
-            rating: [5, 5, 4],
+            ratings: [5, 5, 4], rating: 5,
             status: 'inactive',
             drivingLicense: 'ABC123'
         },
@@ -50,7 +52,8 @@ async function insertDrivers() {
             email: 'alice@example.com',
             password: 'password789',
             locationId: '5fecb3a2c048954f789e5f36', // Example location ID (ObjectID)
-            rating: [3, 4, 3],
+            ratings: [3, 4, 3], 
+            rating: 5,
             status: 'active',
             drivingLicense: 'ABC123'
         },
@@ -61,7 +64,8 @@ async function insertDrivers() {
             email: 'bob@example.com',
             password: 'passwordabc',
             locationId: '5fecb3a2c048954f789e5f37', // Example location ID (ObjectID)
-            rating: [5, 4, 5],
+            ratings: [5, 4, 5],
+            rating: 5,
             status: 'active',
             drivingLicense: 'ABC123'
         },
@@ -72,7 +76,8 @@ async function insertDrivers() {
             email: 'emily@example.com',
             password: 'passwordxyz',
             locationId: '5fecb3a2c048954f789e5f38', // Example location ID (ObjectID)
-            rating: [4, 3, 4],
+            ratings: [4, 3, 4],
+            rating: 5,
             status: 'inactive',
             drivingLicense: 'ABC123'
         }
