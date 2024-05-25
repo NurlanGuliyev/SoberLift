@@ -44,7 +44,7 @@ app.put('/api/updateclientdetails', updateClientDetails);
 app.post('/api/nearbyrequests', findNearbyRequestsForDriver);
 app.put('/api/updateLocation/:driverId', updateDriverLocation);
 app.post('/api/sendMessage', sendMessage);
-app.get('/api/getMessages/:userId1/:userId2', getMessages);
+app.get('/api/getMessages/:rideId', getMessages);
 app.post('/api/getClientRides', getClientRides);
 app.post('/api/getDriverRides', getDriverRides)
 app.post('/api/isRequestAccepted', isRequestAccepted);
@@ -83,10 +83,10 @@ mongoose.connect(MONGO_URL, {
     // await insertLocations();
     // await insertDrivers();
     // await insertFeedbacks();
-    // await insertRides();
+    //await insertRides();
     // await insertPayments();
     // await insertCards();
-    // await insertMessages();
+    //await insertMessages();
     // await insertUsers();
 
     app.listen(PORT, () => {

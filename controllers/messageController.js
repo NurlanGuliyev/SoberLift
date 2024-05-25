@@ -2,48 +2,76 @@
 
 import mongoose from 'mongoose';
 import { Message } from '../models/message.js';
-import { User } from '../models/user.js';
+import { Ride } from '../models/ride.js';
 
 // Function to send a message
-async function sendMessage(req, res) {
-    const { senderId, receiverId, content } = req.body;
-
+export async function sendMessage(req, res) {
     try {
-        // Create a new message
+        const { sender, rideId, content } = req.body;
+
+        // Create a new message object with sender as an embedded document
         const newMessage = new Message({
-            senderId,
-            receiverId,
+            sender: {
+                _id: sender._id,
+                name: sender.name
+            },
+            rideId,
             content
         });
 
-        // Save the message to the database
-        await newMessage.save();
+        // Save the new message object to the Message collection
+        const savedMessage = await newMessage.save();
 
-        res.status(201).json({ message: "Message sent successfully", data: newMessage });
+        // Find the corresponding ride and update its messages field
+        const ride = await Ride.findById(rideId);
+        if (!ride) {
+            return res.status(404).json({ message: "Ride not found" });
+        }
+
+        // Update the messages array in the ride document
+        if (!ride.messages) {
+            ride.messages = [];
+        }
+
+        ride.messages.push({
+            _id: savedMessage._id,
+            sender: savedMessage.sender,
+            content: savedMessage.content,
+            timestamp: savedMessage.timestamp
+        });
+
+        // Save the updated ride document
+        await ride.save();
+
+        // Respond with the saved message object
+        res.status(201).json({ message: savedMessage });
     } catch (error) {
         console.error("Error sending message:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 }
 
-// Function to get messages between two users
-async function getMessages(req, res) {
-    const { userId1, userId2 } = req.params;
-
+export async function getMessages(req, res) {
     try {
-        // Find messages between the two users
-        const messages = await Message.find({
-            $or: [
-                { senderId: userId1, receiverId: userId2 },
-                { senderId: userId2, receiverId: userId1 }
-            ]
-        }).sort({ timestamp: 1 }); // Sort by timestamp in ascending order
+        const { rideId } = req.params;
 
-        res.status(200).json({ messages });
+        // Find the ride document by rideId
+        const ride = await Ride.findById(rideId);
+
+        // Check if the ride is found
+        if (!ride) {
+            return res.status(404).json({ message: "Ride not found" });
+        }
+
+        // Check if the ride has any messages
+        if (!ride.messages || ride.messages.length === 0) {
+            return res.status(404).json({ message: "No messages found for this ride" });
+        }
+
+        // Respond with the messages array
+        res.status(200).json({ messages: ride.messages });
     } catch (error) {
         console.error("Error retrieving messages:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 }
-
-export {sendMessage, getMessages};

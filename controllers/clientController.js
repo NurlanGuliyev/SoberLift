@@ -42,7 +42,8 @@ async function clientRegister(req, res) {
             surname,
             contact_number,
             email,
-            password
+            password,
+            rating: 5
         });
 
         await newClient.save();

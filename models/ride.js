@@ -6,7 +6,8 @@ const rideSchema = new mongoose.Schema({
     driverId: String,
     status: String,
     startTime: Date,
-    endTime: Date
+    endTime: Date,
+    messages: Object
 }, { versionKey: false });
 
 const Ride = mongoose.model('Ride', rideSchema, 'Ride');

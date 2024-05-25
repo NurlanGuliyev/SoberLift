@@ -56,7 +56,8 @@ async function driverRegister(req, res) {
             drivingLicense,
             locationId: savedLocation._id, // Assign the location ID to the driver
             isActive: false, // Set default status to inactive
-            status: "inactive" // Set initial status
+            status: "inactive", // Set initial status
+            rating: 5
         });
 
         await newDriver.save();
