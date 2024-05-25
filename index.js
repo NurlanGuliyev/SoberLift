@@ -83,7 +83,7 @@ mongoose.connect(MONGO_URL, {
     // await insertLocations();
     // await insertDrivers();
     // await insertFeedbacks();
-    //await insertRides();
+    await insertRides();
     // await insertPayments();
     // await insertCards();
     //await insertMessages();

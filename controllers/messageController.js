@@ -21,6 +21,7 @@ export async function sendMessage(req, res) {
 
         // Save the new message object to the Message collection
         const savedMessage = await newMessage.save();
+        console.log("Saved message:", savedMessage);
 
         // Find the corresponding ride and update its messages field
         const ride = await Ride.findById(rideId);
@@ -28,20 +29,27 @@ export async function sendMessage(req, res) {
             return res.status(404).json({ message: "Ride not found" });
         }
 
-        // Update the messages array in the ride document
-        if (!ride.messages) {
+        // Ensure messages is an array
+        if (!Array.isArray(ride.messages)) {
             ride.messages = [];
         }
 
-        ride.messages.push({
+        // Explicitly create a new message object to push into the ride's messages array
+        const messageObject = {
             _id: savedMessage._id,
             sender: savedMessage.sender,
             content: savedMessage.content,
             timestamp: savedMessage.timestamp
-        });
+        };
+
+        // Push the new message into the messages array
+        console.log("Before push, ride.messages:", ride.messages);
+        ride.messages.push(messageObject);
+        console.log("After push, ride.messages:", ride.messages);
 
         // Save the updated ride document
-        await ride.save();
+        const updatedRide = await ride.save();
+        console.log("Updated ride:", updatedRide);
 
         // Respond with the saved message object
         res.status(201).json({ message: savedMessage });
