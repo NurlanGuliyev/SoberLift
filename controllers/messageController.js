@@ -65,7 +65,7 @@ export async function getMessages(req, res) {
 
         // Check if the ride has any messages
         if (!ride.messages || ride.messages.length === 0) {
-            return res.status(404).json({ message: "No messages found for this ride" });
+            return res.status(200).json({ message: "No messages found for this ride" });
         }
 
         // Respond with the messages array
