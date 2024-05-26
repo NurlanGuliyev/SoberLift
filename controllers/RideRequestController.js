@@ -60,6 +60,8 @@ async function createRideFromInput(req, res) {
             endTime: null
         });
 
+        newRide.startTime = new Date();
+
         // Save the new ride object to the database
         const savedRide = await newRide.save();
 
@@ -223,8 +225,8 @@ async function getRideByRequestId(req, res) {
 
 export default getRideByRequestId;
 
-
-async function finishRide(req, res) {
+// Function to finish a ride
+export async function finishRide(req, res) {
     const { rideId } = req.params;
 
     try {
@@ -233,11 +235,16 @@ async function finishRide(req, res) {
             return res.status(404).json({ message: 'Ride not found' });
         }
 
-        // Toggle the status
+        // Set the status to "finished"
         ride.status = "finished";
+
+        // Set the endTime to the current time
+        ride.endTime = new Date();
+
+        // Save the updated ride document
         await ride.save();
 
-        return res.status(200).json({ message: 'Ride status updated', status: ride.status });
+        return res.status(200).json({ message: 'Ride status updated', status: ride.status, endTime: ride.endTime });
     } catch (error) {
         console.error('Error updating ride status:', error);
         return res.status(500).json({ message: 'Internal server error' });
@@ -288,4 +295,4 @@ async function cancelRequest(req, res) {
 
 
 
-export { createRequestFromInput, createRideFromInput, isRequestAccepted, getRideByRequestId, finishRide, cancelRide, cancelRequest};
+export { createRequestFromInput, createRideFromInput, isRequestAccepted, getRideByRequestId, cancelRide, cancelRequest};
