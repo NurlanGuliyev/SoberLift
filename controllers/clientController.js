@@ -154,4 +154,31 @@ export async function rateClient(req, res) {
         return res.status(500).json({ message: "Internal server error" });
     }
 }
+
+// Function to delete a driver by driverId
+export async function deleteClient(req, res) {
+    try {
+        const { clientId } = req.params;
+
+        // Check if the driverId is provided
+        if (!clientId) {
+            return res.status(400).json({ message: "Client ID is required" });
+        }
+
+        // Find and delete the driver by driverId
+        const deletedClient = await Client.findByIdAndDelete(clientId);
+
+        // Check if the driver was found and deleted
+        if (!deletedClient) {
+            return res.status(404).json({ message: "Client not found" });
+        }
+
+        // Respond with a success message
+        return res.status(200).json({ message: "Client deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting driver:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
 export { clientLogin, clientRegister, updateClientDetails, getClientRides };

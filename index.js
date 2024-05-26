@@ -10,8 +10,8 @@ import { insertPayments } from "./models/payment.js";
 import { insertCards } from "./models/card.js";
 import { insertUsers } from "./models/user.js";
 import { insertMessages } from "./models/message.js";
-import { clientLogin, clientRegister, updateClientDetails, getClientRides, rateClient} from "./controllers/clientController.js";
-import { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive, getDriverStatus, updateDriverDetails, updateDriverLocation, getDriverRides, getDriverLocation, rateDriver } from "./controllers/driverController.js";
+import { clientLogin, clientRegister, updateClientDetails, getClientRides, rateClient, deleteClient} from "./controllers/clientController.js";
+import { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive, getDriverStatus, updateDriverDetails, updateDriverLocation, getDriverRides, getDriverLocation, rateDriver, deleteDriver } from "./controllers/driverController.js";
 import { createRequestFromInput, createRideFromInput, findNearbyRequestsForDriver, isRequestAccepted, getRideByRequestId, finishRide, cancelRide, cancelRequest} from "./controllers/RideRequestController.js";
 import { sendMessage, getMessages } from "./controllers/messageController.js";
 import { Message } from "./models/message.js";
@@ -55,6 +55,8 @@ app.put('/api/cancelRide/:rideId', cancelRide);
 app.put('/api/cancelRequest/:requestId', cancelRequest);
 app.post('/api/rateClient/:clientId', rateClient);
 app.post('/api/rateDriver/:driverId', rateDriver);
+app.put('/api/deleteDriver/:driverId', deleteDriver)
+app.put('/api/deleteClient/:clientId', deleteClient)
 // Define a route handler for the root URL
 app.get('/', (req, res) => {
     res.send('Hello, world!');
@@ -83,7 +85,7 @@ mongoose.connect(MONGO_URL, {
     // await insertLocations();
     // await insertDrivers();
     // await insertFeedbacks();
-    await insertRides();
+    //await insertRides();
     // await insertPayments();
     // await insertCards();
     //await insertMessages();

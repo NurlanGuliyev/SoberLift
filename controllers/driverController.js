@@ -338,4 +338,30 @@ export async function rateDriver(req, res) {
     }
 }
 
+// Function to delete a driver by driverId
+export async function deleteDriver(req, res) {
+    try {
+        const { driverId } = req.params;
+
+        // Check if the driverId is provided
+        if (!driverId) {
+            return res.status(400).json({ message: "Driver ID is required" });
+        }
+
+        // Find and delete the driver by driverId
+        const deletedDriver = await Driver.findByIdAndDelete(driverId);
+
+        // Check if the driver was found and deleted
+        if (!deletedDriver) {
+            return res.status(404).json({ message: "Driver not found" });
+        }
+
+        // Respond with a success message
+        return res.status(200).json({ message: "Driver deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting driver:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
 export { driverLogin, driverRegister, findActiveDriversNearLocation, makeActiveInactive, getDriverStatus, updateDriverDetails, updateDriverLocation, getDriverRides, getDriverLocation };
