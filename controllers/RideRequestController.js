@@ -95,10 +95,10 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
     return distance;
 }
 
-// Function to find requests within 10 km proximity of a driver
+// Function to find nearby requests for a driver with the specified criteria
 export async function findNearbyRequestsForDriver(req, res) {
     try {
-        const { driver } = req.body; // Adjusted to correctly access the nested driver object
+        const { driver } = req.body; // Access the driver object from the request body
 
         // Check if locationId is present
         if (!driver.locationId) {
@@ -116,14 +116,22 @@ export async function findNearbyRequestsForDriver(req, res) {
         // Retrieve all request documents
         const requests = await Request.find();
 
-        // Filter requests based on proximity to the driver's location
+        // Get the current time and the time 30 minutes from now
+        const now = new Date();
+        const thirtyMinutesLater = new Date(now.getTime() + 30 * 60000); // 30 minutes in milliseconds
+
+        // Filter requests based on proximity to the driver's location and scheduled time
         const nearbyRequests = requests.filter(request => {
             if (!request.pickupLocation || !request.pickupLocation.latitude || !request.pickupLocation.longitude) {
                 return false; // Skip if pickupLocation or its properties are null/undefined
             }
+
             const { latitude: pickupLat, longitude: pickupLon } = request.pickupLocation;
             const distance = calculateDistance(driverLat, driverLon, pickupLat, pickupLon);
-            return distance <= 10; // Check if within 10 km
+            const scheduledTime = new Date(request.scheduledTime);
+
+            // Check if within 10 km and the scheduled time is in the past or within the next 30 minutes
+            return distance <= 10 && (scheduledTime <= now || (scheduledTime > now && scheduledTime <= thirtyMinutesLater));
         });
 
         // Fetch the full client documents for each request
